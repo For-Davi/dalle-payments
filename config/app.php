@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'access_token' => env('ACCESS_TOKEN'),
+    'asaas_access_token' => env('ASAAS_ACCESS_TOKEN'),
 ];

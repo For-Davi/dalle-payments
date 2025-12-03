@@ -12,7 +12,7 @@ class ProjectsSeeder extends Seeder
         Projects::create([
             'name' => 'dalle-manage',
             'api_key' => 'dm_$dalle',
-            'active' => 1
+            'active' => 1,
         ]);
     }
 }

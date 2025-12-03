@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Projects extends Model
 {
-    
     protected $fillable = [
         'name',
         'api_key',
-        'active'
+        'active',
     ];
 
     protected $hidden = [
