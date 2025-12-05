@@ -37,7 +37,7 @@ class AsaasPaymentInfoRepository
 
     public function delete($id)
     {
-        $paymentInfo = $this->findByUserId($id);
+        $paymentInfo = $this->findById($id);
         if ($paymentInfo) {
 
             return $paymentInfo->delete();

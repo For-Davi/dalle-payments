@@ -4,7 +4,7 @@ namespace App\Modules\Asaas\Http\Requests\Client;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateAsaasClientRequest extends FormRequest
+class AsaasCreateClientRequest extends FormRequest
 {
     public function authorize(): bool
     {

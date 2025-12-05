@@ -4,7 +4,7 @@ namespace App\Modules\Asaas\Http\Requests\CreditCard;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateAsaasChargeCreditCardRequest extends FormRequest
+class AsaasCreateChargeCreditCardRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,6 +15,8 @@ class CreateAsaasChargeCreditCardRequest extends FormRequest
     {
         return [
             'userID' => 'required|numeric',
+            'subscriptionID' => 'required|numeric',
+            'monthQuantity' => 'required|numeric',
             'value' => 'required|numeric',
             'description' => 'nullable|string|max:500',
             'installmentCount' => 'nullable|numeric',
@@ -43,6 +45,10 @@ class CreateAsaasChargeCreditCardRequest extends FormRequest
         return [
         'userID.required' => 'O ID do usuário é obrigatório.',
         'userID.numeric' => 'O ID do usuário deve ser numérico.',
+        'subscriptionID.required' => 'O ID da assinatura é obrigatório.',
+        'subscriptionID.numeric' => 'O ID da assinatura deve ser numérico.',
+        'monthQuantity.required' => 'A quantidade de meses é obrigatório.',
+        'monthQuantity.numeric' => 'A quantidade de meses deve ser numérico.',
         'value.required' => 'O valor é obrigatório.',
         'value.numeric' => 'O valor deve ser numérico.',
         'description.string' => 'A descrição deve ser um texto.',

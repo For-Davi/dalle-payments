@@ -3,14 +3,20 @@
 namespace App\Modules\Asaas\Service;
 
 use App\Modules\Asaas\DTO\Webhook\AsaasCreateOrUpdateWebhookDataDTO;
-use App\Modules\Asaas\Jobs\SendEventPixJob;
+use App\Modules\Asaas\Jobs\SendPaymentDataAsaasJob;
 use App\Modules\Asaas\Http\AsaasHttpClient;
+use App\Repositories\UrlProjectRepository;
 use App\Modules\Asaas\Repositories\AsaasDalleManageRepository;
 use App\Modules\Asaas\Repositories\AsaasPaymentInfoRepository;
 
 class AsaasWebhookService
 {
-    public function __construct(protected AsaasHttpClient $http, protected AsaasDalleManageRepository $manageRepository, protected AsaasPaymentInfoRepository $paymentInfoRepository){}
+    public function __construct(
+        protected AsaasHttpClient $http, 
+    protected AsaasDalleManageRepository $manageRepository, 
+    protected AsaasPaymentInfoRepository $paymentInfoRepository,
+    protected UrlProjectRepository $urlProjectRepository,
+    ){}
 
     public function checkWebhook($request)
     {
@@ -169,19 +175,28 @@ class AsaasWebhookService
 
         switch($webhookDataDTO->external_reference){
             case 'dalle_manage':
-             return $this->manageRepository->update($webhookDataDTO->payment_id, $webhookDataDTO->toArray());
+             return $result = $this->manageRepository->update($webhookDataDTO->payment_id, $webhookDataDTO->toArray());
             break;
+        }
+
+        if($result){
+            $this->urlProjectRepository->findByIdentifier($projectName);
+            dispatch(new SendPaymentDataAsaasJob($request->all(), $project->base_url));
         }
     }
 
     private function checkPaymentPix($request)
     {
         if($this->paymentInfoRepository->findById($request['payment']['pixQrCodeId'])){
+            $parts = explode('|', $request['payment']['externalReference']);
+            $projectName = $parts[0];
+            $project = $this->urlProjectRepository->findByIdentifier($projectName);
+
+            if($project){
             $this->store($request);
             $this->paymentInfoRepository->delete($request['payment']['pixQrCodeId']);
-            SendEventPixJob::dispatch(true);
-        } else {
-            SendEventPixJob::dispatch(false);
+            dispatch(new SendPaymentDataAsaasJob($request->all(), $project->base_url));
+            }
         }
     }
 }

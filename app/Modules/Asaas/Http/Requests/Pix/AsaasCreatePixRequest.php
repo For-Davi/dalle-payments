@@ -6,7 +6,7 @@ use App\Enums\ProjectIdentifier;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class CreateAsaasPixRequest extends FormRequest
+class AsaasCreatePixRequest extends FormRequest
 {
     public function authorize(): bool
     {

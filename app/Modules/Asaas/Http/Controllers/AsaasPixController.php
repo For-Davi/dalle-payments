@@ -2,8 +2,8 @@
 
 namespace App\Modules\Asaas\Http\Controllers;
 
-use App\Modules\Asaas\Service\PixService;
-use App\Modules\Asaas\Http\Requests\Pix\CreateAsaasPixRequest;
+use App\Modules\Asaas\Service\AsaasPixService;
+use App\Modules\Asaas\Http\Requests\Pix\AsaasCreatePixRequest;
 use App\Modules\Asaas\Repositories\AsaasPaymentInfoRepository;
 use App\Modules\Asaas\Http\Requests\Pix\AsaasDeleteRegisterPixRequest;
 use App\Utils\ErrorLogger;
@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class AsaasPixController
 {
-    public function __construct(private PixService $service, private AsaasPaymentInfoRepository $paymentInfoRepository) {}
+    public function __construct(private AsaasPixService $service, private AsaasPaymentInfoRepository $paymentInfoRepository) {}
 
-    public function create(CreateAsaasPixRequest $request)
+    public function create(AsaasCreatePixRequest $request)
     {
         try {
             $pix = $this->service->create($request);

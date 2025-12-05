@@ -8,7 +8,7 @@ use App\Modules\Asaas\Http\AsaasHttpClient;
 use App\Modules\Asaas\DTO\Pix\AsaasCreateOrUpdatePaymentInfoDTO;
 use App\Utils\ErrorAsaasData;
 
-class PixService
+class AsaasPixService
 {
     public function __construct(protected AsaasHttpClient $http, protected AsaasPaymentInfoRepository $paymentInfoRepository)
     {

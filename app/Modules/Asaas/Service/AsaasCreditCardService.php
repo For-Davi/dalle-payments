@@ -6,7 +6,6 @@ use App\Modules\Asaas\DTO\Charge\AsaasCreateChargeDTO;
 use App\Modules\Asaas\DTO\CreditCard\AsaasCreateCreditCardDTO;
 use App\Modules\Asaas\Repositories\AsaasDalleManageRepository;
 use App\Modules\Asaas\Http\AsaasHttpClient;
-use Illuminate\Support\Facades\Http;
 use App\Utils\ErrorAsaasData;
 use Carbon\Carbon;
 use Exception;
@@ -61,7 +60,7 @@ class AsaasCreditCardService
         'billingType' => 'CREDIT_CARD',
         'value' => $paymentData->value,
         'dueDate' => Carbon::now()->addHours(24)->toDateString(),
-        'externalReference' => "{$paymentData->identifier}|user_{$paymentData->userID}",
+        'externalReference' => "{$paymentData->identifier}|user_{$paymentData->userID}|subscription_{$paymentData->subscriptionID}|month_qnty_{$paymentData->monthQuantity}",
         'description' => $paymentData->description,
         'installmentCount' => $paymentData->installmentCount,
         'totalValue' => $paymentData->totalValue,
