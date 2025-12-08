@@ -26,7 +26,7 @@ class AsaasHttpClient
         ])->{$method}($this->baseUrl.$uri, $data);
 
         $json = $response->json();
-            \Log::info(['JSON' => $json]);
+        \Log::info(['JSON' => $json]);
         if ($response->failed() || isset($json['errors'])) {
             $message = $json['errors'][0]['description'] ?? 'Erro desconhecido comunicando com o Asaas.';
             throw new Exception($message);

@@ -2,10 +2,10 @@
 
 namespace App\Modules\Asaas\Service;
 
-use App\Modules\Asaas\DTO\Pix\AsaasCreatePixDTO;
-use App\Modules\Asaas\Repositories\AsaasPaymentInfoRepository;
-use App\Modules\Asaas\Http\AsaasHttpClient;
 use App\Modules\Asaas\DTO\Pix\AsaasCreateOrUpdatePaymentInfoDTO;
+use App\Modules\Asaas\DTO\Pix\AsaasCreatePixDTO;
+use App\Modules\Asaas\Http\AsaasHttpClient;
+use App\Modules\Asaas\Repositories\AsaasPaymentInfoRepository;
 use App\Utils\ErrorAsaasData;
 
 class AsaasPixService
@@ -29,12 +29,13 @@ class AsaasPixService
 
         ErrorAsaasData::hasError($response, 'Erro ao criar PIX');
 
-       if($this->existsPixTransaction($request)){
-        $this->updateTransaction($response);
-       } else {
-        $this->saveTransaction($response);
-    }
-    return $response;
+        if ($this->existsPixTransaction($request)) {
+            $this->updateTransaction($response);
+        } else {
+            $this->saveTransaction($response);
+        }
+
+        return $response;
     }
 
     private function existsPixTransaction($request)
@@ -45,46 +46,46 @@ class AsaasPixService
     private function updateTransaction($paymentData)
     {
         $parts = explode('|', $paymentData['externalReference']);
-            $projectName = $parts[0];
-            $userPart = $parts[1];
-            $subscriptionPart = $parts[2];
-            $monthQuantityPart = $parts[3];
+        $projectName = $parts[0];
+        $userPart = $parts[1];
+        $subscriptionPart = $parts[2];
+        $monthQuantityPart = $parts[3];
 
-            $userID = (int) str_replace('user_', '', $userPart); 
-            $subscriptionID = (int) str_replace('subscription_', '', $subscriptionPart);
-            $monthQuantity = (int) str_replace('month_qnty_', '', $monthQuantityPart);
+        $userID = (int) str_replace('user_', '', $userPart);
+        $subscriptionID = (int) str_replace('subscription_', '', $subscriptionPart);
+        $monthQuantity = (int) str_replace('month_qnty_', '', $monthQuantityPart);
 
-            $paymentInfoDTO = AsaasCreateOrUpdatePaymentInfoDTO::fromRequest([
-                'paymentID' => $paymentData['id'],
-                'userID' => $userID,
-                'subscriptionID' => $subscriptionID,
-                'monthQuantity' => $monthQuantity,
-                'identifier' => $projectName
-            ]);
+        $paymentInfoDTO = AsaasCreateOrUpdatePaymentInfoDTO::fromRequest([
+            'paymentID' => $paymentData['id'],
+            'userID' => $userID,
+            'subscriptionID' => $subscriptionID,
+            'monthQuantity' => $monthQuantity,
+            'identifier' => $projectName,
+        ]);
 
-            return $this->paymentInfoRepository->update($userID, $paymentInfoDTO->toArray());
+        return $this->paymentInfoRepository->update($userID, $paymentInfoDTO->toArray());
     }
 
     private function saveTransaction($paymentData)
     {
-            $parts = explode('|', $paymentData['externalReference']);
-            $projectName = $parts[0];
-            $userPart = $parts[1];
-            $subscriptionPart = $parts[2];
-            $monthQuantityPart = $parts[3];
+        $parts = explode('|', $paymentData['externalReference']);
+        $projectName = $parts[0];
+        $userPart = $parts[1];
+        $subscriptionPart = $parts[2];
+        $monthQuantityPart = $parts[3];
 
-            $userID = (int) str_replace('user_', '', $userPart); 
-            $subscriptionID = (int) str_replace('subscription_', '', $subscriptionPart);
-            $monthQuantity =(int) str_replace('month_qnty_', '', $monthQuantityPart);
+        $userID = (int) str_replace('user_', '', $userPart);
+        $subscriptionID = (int) str_replace('subscription_', '', $subscriptionPart);
+        $monthQuantity = (int) str_replace('month_qnty_', '', $monthQuantityPart);
 
-            $paymentInfoDTO = AsaasCreateOrUpdatePaymentInfoDTO::fromRequest([
-                'paymentID' => $paymentData['id'],
-                'userID' => $userID,
-                'subscriptionID' => $subscriptionID,
-                'monthQuantity' => $monthQuantity,
-                'identifier' => $projectName
-            ]);
+        $paymentInfoDTO = AsaasCreateOrUpdatePaymentInfoDTO::fromRequest([
+            'paymentID' => $paymentData['id'],
+            'userID' => $userID,
+            'subscriptionID' => $subscriptionID,
+            'monthQuantity' => $monthQuantity,
+            'identifier' => $projectName,
+        ]);
 
-            return $this->paymentInfoRepository->create($paymentInfoDTO->toArray());
+        return $this->paymentInfoRepository->create($paymentInfoDTO->toArray());
     }
 }

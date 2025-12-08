@@ -3,7 +3,6 @@
 namespace App\Modules\Asaas\Http\Controllers;
 
 use App\Modules\Asaas\Service\AsaasWebhookService;
-use App\Modules\Asaas\Http\Requests\Webhook\AsaasWebhookRequest;
 use App\Utils\ErrorLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

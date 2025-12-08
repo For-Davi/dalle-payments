@@ -2,9 +2,7 @@
 
 namespace App\Modules\Asaas\Http\Requests\Pix;
 
-use App\Enums\ProjectIdentifier;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
 class AsaasDeleteRegisterPixRequest extends FormRequest
 {

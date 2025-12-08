@@ -2,12 +2,11 @@
 
 namespace App\Modules\Asaas\Http\Controllers;
 
-use App\Modules\Asaas\Service\AsaasPixService;
 use App\Modules\Asaas\Http\Requests\Pix\AsaasCreatePixRequest;
-use App\Modules\Asaas\Repositories\AsaasPaymentInfoRepository;
 use App\Modules\Asaas\Http\Requests\Pix\AsaasDeleteRegisterPixRequest;
+use App\Modules\Asaas\Repositories\AsaasPaymentInfoRepository;
+use App\Modules\Asaas\Service\AsaasPixService;
 use App\Utils\ErrorLogger;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AsaasPixController
@@ -32,9 +31,9 @@ class AsaasPixController
         try {
             DB::beginTransaction();
 
-            $result = $this->paymentInfoRepository->delete($request->route('userID'));
+            $result = $this->paymentInfoRepository->deleteByUserId($request->route('userID'));
 
-            if($result){
+            if ($result) {
                 DB::commit();
 
                 return response()->json(['status' => 'ok'], 200);

@@ -11,7 +11,7 @@ class AsaasDalleManageRepository
     public function findById($id)
     {
         return $this->model->where('payment_id', $id)->first();
-    }  
+    }
 
     public function create($data)
     {

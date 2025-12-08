@@ -2,8 +2,6 @@
 
 namespace App\Modules\Asaas\Jobs;
 
-use App\Modules\Asaas\Event\PixPaid;
-use App\Modules\Asaas\Event\PixFailed;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,13 +9,14 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 
-
 class SendPaymentDataAsaasJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected array $data;
+
     protected string $token;
+
     protected string $baseUrl;
 
     public function __construct(array $data, string $baseUrl)
@@ -32,7 +31,7 @@ class SendPaymentDataAsaasJob implements ShouldQueue
         \Log::info(['data' => $this->data, 'baseUrl' => $this->baseUrl, 'token' => $this->token]);
         Http::withHeaders([
             'accept' => 'application/json',
-             'Content-Type' => 'application/json',
+            'Content-Type' => 'application/json',
             'access-token' => $this->token,
         ])->post("{$this->baseUrl}/send-webhook", $this->data);
     }

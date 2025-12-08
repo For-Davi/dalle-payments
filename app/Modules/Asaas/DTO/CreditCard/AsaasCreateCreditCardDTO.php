@@ -42,20 +42,20 @@ class AsaasCreateCreditCardDTO
         return [
             'creditCard' => [
                 'holderName' => $this->holderName,
-            'number' => $this->number,
-            'expiryMonth' => $this->expiryMonth,
-            'expiryYear' => $this->expiryYear,
-            'ccv' => $this->ccv,
+                'number' => $this->number,
+                'expiryMonth' => $this->expiryMonth,
+                'expiryYear' => $this->expiryYear,
+                'ccv' => $this->ccv,
             ],
             'creditCardHolderInfo' => [
-            'name' => $this->name,
-            'email' => $this->email,
-            'cpfCnpj' => $this->cpfCnpj,
-            'postalCode' => $this->postalCode,
-            'addressNumber' => $this->addressNumber,
-            'addressComplement' => $this->addressComplement,
-            'phone' => $this->phone,
-            ]
+                'name' => $this->name,
+                'email' => $this->email,
+                'cpfCnpj' => $this->cpfCnpj,
+                'postalCode' => $this->postalCode,
+                'addressNumber' => $this->addressNumber,
+                'addressComplement' => $this->addressComplement,
+                'phone' => $this->phone,
+            ],
         ];
     }
 }

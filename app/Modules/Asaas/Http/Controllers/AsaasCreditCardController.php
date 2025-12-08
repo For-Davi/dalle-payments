@@ -2,10 +2,9 @@
 
 namespace App\Modules\Asaas\Http\Controllers;
 
-use App\Modules\Asaas\Service\AsaasCreditCardService;
 use App\Modules\Asaas\Http\Requests\CreditCard\AsaasCreateChargeCreditCardRequest;
+use App\Modules\Asaas\Service\AsaasCreditCardService;
 use App\Utils\ErrorLogger;
-use Illuminate\Http\Request;
 
 class AsaasCreditCardController
 {
@@ -15,6 +14,8 @@ class AsaasCreditCardController
     {
         try {
             $result = $this->service->create($request);
+
+            \Log::info('reqoest: '.json_encode($request, JSON_PARTIAL_OUTPUT_ON_ERROR));
 
             return response()->json(['result' => $result], 200);
         } catch (\Exception $e) {

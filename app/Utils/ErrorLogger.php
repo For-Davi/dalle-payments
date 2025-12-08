@@ -11,17 +11,17 @@ class ErrorLogger
     {
         $context = [
             'exception_message' => $e->getMessage(),
-            'exception_file'    => $e->getFile(),
-            'exception_line'    => $e->getLine(),
-            'trace'             => $e->getTraceAsString(),
+            'exception_file' => $e->getFile(),
+            'exception_line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
         ];
 
         if ($request) {
             $context['request'] = [
-                'url'     => $request->fullUrl(),
-                'method'  => $request->method(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
                 'payload' => $request->all(),
-                'query'   => $request->query(),
+                'query' => $request->query(),
                 'headers' => $request->headers->all(),
             ];
         }

@@ -70,6 +70,6 @@ class AsaasDalleManage extends Model
         'refund_effective_date',
         'refund_transaction_receipt_url',
         'user_id',
-        'pix_qr_code_id'
+        'pix_qr_code_id',
     ];
 }

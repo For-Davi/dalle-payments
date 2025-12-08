@@ -2,8 +2,6 @@
 
 namespace App\Modules\Asaas\DTO\Charge;
 
-use Carbon\Carbon;
-
 class AsaasCreateChargeDTO
 {
     public function __construct(

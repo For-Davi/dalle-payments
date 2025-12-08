@@ -19,5 +19,5 @@ class AsaasClientService
         ErrorAsaasData::hasError($response, 'Erro ao criar cliente');
 
         return $response;
-    } 
+    }
 }
