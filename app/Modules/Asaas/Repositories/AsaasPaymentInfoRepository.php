@@ -39,7 +39,6 @@ class AsaasPaymentInfoRepository
     {
         $paymentInfo = $this->findById($id);
         if ($paymentInfo) {
-
             return $paymentInfo->delete();
         }
 

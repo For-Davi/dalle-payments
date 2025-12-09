@@ -28,8 +28,7 @@ class SendPaymentDataAsaasJob implements ShouldQueue
 
     public function handle(): void
     {
-        \Log::info(['data' => $this->data, 'baseUrl' => $this->baseUrl, 'token' => $this->token]);
-        Http::withHeaders([
+        $response = Http::withHeaders([
             'accept' => 'application/json',
             'Content-Type' => 'application/json',
             'access-token' => $this->token,

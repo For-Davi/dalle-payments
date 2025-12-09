@@ -19,7 +19,6 @@ class AsaasCreditCardService
 
     public function create($request)
     {
-        \Log::info(['AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' => $request->all()]);
         $cpfCnpj = $request['creditCardHolderInfo']['cpfCnpj'];
         $response = $this->http->get('/customers');
 
