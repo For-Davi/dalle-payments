@@ -14,7 +14,7 @@ class AsaasCreditCardController
     {
         try {
             $result = $this->service->create($request);
-            
+
             return response()->json(['result' => $result], 200);
         } catch (\Exception $e) {
             ErrorLogger::log('Erro ao criar cobrança:', $e, $request);

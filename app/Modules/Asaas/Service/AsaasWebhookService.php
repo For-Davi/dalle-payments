@@ -25,7 +25,7 @@ class AsaasWebhookService
         }
         if ($request['payment']['billingType'] === 'CREDIT_CARD' && $request['event'] === 'PAYMENT_CREATED') {
             return $this->store($request);
-        } else if ($request['payment']['billingType'] === 'CREDIT_CARD' && $request['event'] === 'PAYMENT_CONFIRMED') {
+        } elseif ($request['payment']['billingType'] === 'CREDIT_CARD' && $request['event'] === 'PAYMENT_CONFIRMED') {
             return $this->update($request);
         }
     }
@@ -198,6 +198,7 @@ class AsaasWebhookService
                 $this->store($request);
                 $this->paymentInfoRepository->deleteByPaymentId($request['payment']['pixQrCodeId']);
                 dispatch(new SendPaymentDataAsaasJob($request->all(), $project->base_url));
+
                 return true;
             }
         }

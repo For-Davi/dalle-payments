@@ -79,12 +79,16 @@ class SimulateAsaasPixWebhook extends Command
             ],
         ];
 
+        $ngrokDomain = env('NGROK_DOMAIN');
+
+        $url = "https://{$ngrokDomain}/api/asaas-webhook";
+
         $response = Http::withHeaders([
             'asaas-access-token' => 'asdkjh1989c8jw98eryj9hfdsfh293hh2h234hh6h5j4',
             'Content-Type' => 'application/json',
-        ])->post('https://deja-hyperpigmented-margit.ngrok-free.dev/api/asaas-webhook', $payload);
+        ])->post($url, $payload);
 
-        $this->info("POST enviado para https://deja-hyperpigmented-margit.ngrok-free.dev/api/asaas-webhook. Status HTTP: {$response->status()}");
+        $this->info("POST enviado para $url. Status HTTP: {$response->status()}");
         $this->info('Resposta: '.$response->body());
     }
 }
