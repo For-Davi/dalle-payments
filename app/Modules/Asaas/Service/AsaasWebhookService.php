@@ -18,189 +18,100 @@ class AsaasWebhookService
         protected UrlProjectRepository $urlProjectRepository,
     ) {}
 
-    public function checkWebhook($request)
+    public function checkWebhook(array $request)
     {
-        if ($request['payment']['billingType'] === 'PIX' && $request['event'] === 'PAYMENT_RECEIVED') {
-            return $this->checkPaymentPix($request);
+        $billing = $request['payment']['billingType'];
+        $event = $request['event'];
+
+        if ($billing === 'PIX' && $event === 'PAYMENT_RECEIVED') {
+            return $this->handlePixPayment($request);
         }
-        if ($request['payment']['billingType'] === 'CREDIT_CARD' && $request['event'] === 'PAYMENT_CREATED') {
+
+        if ($billing === 'CREDIT_CARD') {
+            return $this->handleCreditCard($request);
+        }
+
+        return null;
+    }
+
+    private function handleCreditCard(array $request)
+    {
+        $event = $request['event'];
+
+        if ($event === 'PAYMENT_CREATED') {
             return $this->store($request);
-        } elseif ($request['payment']['billingType'] === 'CREDIT_CARD' && $request['event'] === 'PAYMENT_CONFIRMED') {
+        }
+
+        if ($event === 'PAYMENT_CONFIRMED') {
             return $this->update($request);
         }
+
+        return null;
     }
 
-    private function store($request)
+    private function store(array $request)
     {
-        $parts = explode('|', $request['payment']['externalReference']);
-        $projectName = $parts[0];
-        $userPart = $parts[1];
-        $userId = str_replace('user_', '', $userPart);
+        $dto = AsaasCreateOrUpdateWebhookDataDTO::fromRequest($request);
 
-        $webhookDataDTO = AsaasCreateOrUpdateWebhookDataDTO::fromRequest([
-            'event_id' => $request['id'],
-            'event' => $request['event'],
-            'change_date' => $request['dateCreated'],
-            'object' => $request['payment']['object'],
-            'payment_id' => $request['payment']['id'],
-            'payment_date_created' => $request['payment']['dateCreated'],
-            'customer_id' => $request['payment']['customer'],
-            'checkout_session' => $request['payment']['checkoutSession'] ?? null,
-            'payment_link' => $request['payment']['paymentLink'] ?? null,
-            'value' => $request['payment']['value'],
-            'net_value' => $request['payment']['netValue'],
-            'original_value' => $request['payment']['originalValue'] ?? null,
-            'description' => $request['payment']['description'] ?? null,
-            'billing_type' => $request['payment']['billingType'],
-            'confirmed_date' => $request['payment']['confirmedDate'] ?? null,
-            'pix_transaction' => $request['payment']['pixTransaction'] ?? null,
-            'status' => $request['payment']['status'],
-            'due_date' => $request['payment']['dueDate'],
-            'original_due_date' => $request['payment']['originalDueDate'],
-            'settlement_date' => $request['payment']['paymentDate'] ?? null,
-            'client_payment_date' => $request['payment']['clientPaymentDate'] ?? null,
-            'installment_number' => $request['payment']['installmentNumber'] ?? null,
-            'invoice_url' => $request['payment']['invoiceUrl'],
-            'invoice_number' => $request['payment']['invoiceNumber'] ?? null,
-            'external_reference' => $projectName,
-            'deleted' => $request['payment']['deleted'],
-            'anticipated' => $request['payment']['anticipated'],
-            'anticipable' => $request['payment']['anticipable'],
-            'credit_date' => $request['payment']['creditDate'] ?? null,
-            'estimated_credit_date' => $request['payment']['estimatedCreditDate'] ?? null,
-            'transaction_receipt_url' => $request['payment']['transactionReceiptUrl'] ?? null,
-            'nosso_numero' => $request['payment']['nossoNumero'] ?? null,
-            'bank_slip_url' => $request['payment']['bankSlipUrl'] ?? null,
-            'last_invoice_viewed_date' => $request['payment']['lastInvoiceViewedDate'] ?? null,
-            'last_bank_slip_viewed_date' => $request['payment']['lastBankSlipViewedDate'] ?? null,
-            'discount_value' => $request['payment']['discount']['value'] ?? 0,
-            'discount_limit_date' => $request['payment']['discount']['limitDate'] ?? null,
-            'due_date_limit_days' => $request['payment']['discount']['dueDateLimitDays'] ?? null,
-            'discount_type' => $request['payment']['discount']['type'] ?? null,
-            'fine_value' => $request['payment']['fine']['value'] ?? null,
-            'fine_type' => $request['payment']['fine']['type'] ?? null,
-            'interest_value' => $request['payment']['interest']['value'] ?? null,
-            'interest_type' => $request['payment']['interest']['type'] ?? null,
-            'postal_service' => $request['payment']['postalService'] ?? null,
-            'escrow_id' => $request['payment']['escrow']['id'] ?? null,
-            'escrow_status' => $request['payment']['escrow']['status'] ?? null,
-            'escrow_expiration_date' => $request['payment']['escrow']['expirationDate'] ?? null,
-            'escrow_finish_date' => $request['payment']['escrow']['finishDate'] ?? null,
-            'escrow_finish_reason' => $request['payment']['escrow']['finishReason'] ?? null,
-            'refund_date_created' => $request['payment']['refunds']['dateCreated'] ?? null,
-            'refund_status' => $request['payment']['refunds']['status'] ?? null,
-            'refund_value' => $request['payment']['refunds']['value'] ?? null,
-            'refund_end_to_end_identifier' => $request['payment']['refunds']['endToEndIdentifier'] ?? null,
-            'refund_description' => $request['payment']['refunds']['description'] ?? null,
-            'refund_effective_date' => $request['payment']['refunds']['effectiveDate'] ?? null,
-            'refund_transaction_receipt_url' => $request['payment']['refunds']['transactionReceiptUrl'] ?? null,
-            'user_id' => (int) $userId,
-            'pix_qr_code_id' => $request['payment']['pixQrCodeId'] ?? null,
-        ]);
-
-        switch ($webhookDataDTO->external_reference) {
-            case 'dalle_manage':
-                return $this->manageRepository->create($webhookDataDTO->toArray());
-                break;
+        if ($dto->external_reference === 'dalle_manage') {
+            return $this->manageRepository->create($dto->toArray());
         }
+
+        return null;
     }
 
-    private function update($request)
+    private function update(array $request)
     {
-        $parts = explode('|', $request['payment']['externalReference']);
-        $projectName = $parts[0];
-        $userPart = $parts[1];
-        $userId = (int) str_replace('user_', '', $userPart);
+        $dto = AsaasCreateOrUpdateWebhookDataDTO::fromRequest($request);
 
-        $webhookDataDTO = AsaasCreateOrUpdateWebhookDataDTO::fromRequest([
-            'event_id' => $request['id'],
-            'event' => $request['event'],
-            'change_date' => $request['dateCreated'],
-            'object' => $request['payment']['object'],
-            'payment_id' => $request['payment']['id'],
-            'payment_date_created' => $request['payment']['dateCreated'],
-            'customer_id' => $request['payment']['customer'],
-            'checkout_session' => $request['payment']['checkoutSession'] ?? null,
-            'payment_link' => $request['payment']['paymentLink'] ?? null,
-            'value' => $request['payment']['value'],
-            'net_value' => $request['payment']['netValue'],
-            'original_value' => $request['payment']['originalValue'] ?? null,
-            'description' => $request['payment']['description'] ?? null,
-            'billing_type' => $request['payment']['billingType'],
-            'confirmed_date' => $request['payment']['confirmedDate'] ?? null,
-            'pix_transaction' => $request['payment']['pixTransaction'] ?? null,
-            'status' => $request['payment']['status'],
-            'due_date' => $request['payment']['dueDate'],
-            'original_due_date' => $request['payment']['originalDueDate'],
-            'settlement_date' => $request['payment']['paymentDate'] ?? null,
-            'client_payment_date' => $request['payment']['clientPaymentDate'] ?? null,
-            'installment_number' => $request['payment']['installmentNumber'] ?? null,
-            'invoice_url' => $request['payment']['invoiceUrl'],
-            'invoice_number' => $request['payment']['invoiceNumber'] ?? null,
-            'external_reference' => $projectName,
-            'deleted' => $request['payment']['deleted'],
-            'anticipated' => $request['payment']['anticipated'],
-            'anticipable' => $request['payment']['anticipable'],
-            'credit_date' => $request['payment']['creditDate'] ?? null,
-            'estimated_credit_date' => $request['payment']['estimatedCreditDate'] ?? null,
-            'transaction_receipt_url' => $request['payment']['transactionReceiptUrl'] ?? null,
-            'nosso_numero' => $request['payment']['nossoNumero'] ?? null,
-            'bank_slip_url' => $request['payment']['bankSlipUrl'] ?? null,
-            'last_invoice_viewed_date' => $request['payment']['lastInvoiceViewedDate'] ?? null,
-            'last_bank_slip_viewed_date' => $request['payment']['lastBankSlipViewedDate'] ?? null,
-            'discount_value' => $request['payment']['discount']['value'] ?? 0,
-            'discount_limit_date' => $request['payment']['discount']['limitDate'] ?? null,
-            'due_date_limit_days' => $request['payment']['discount']['dueDateLimitDays'] ?? null,
-            'discount_type' => $request['payment']['discount']['type'] ?? null,
-            'fine_value' => $request['payment']['fine']['value'] ?? null,
-            'fine_type' => $request['payment']['fine']['type'] ?? null,
-            'interest_value' => $request['payment']['interest']['value'] ?? null,
-            'interest_type' => $request['payment']['interest']['type'] ?? null,
-            'postal_service' => $request['payment']['postalService'] ?? null,
-            'escrow_id' => $request['payment']['escrow']['id'] ?? null,
-            'escrow_status' => $request['payment']['escrow']['status'] ?? null,
-            'escrow_expiration_date' => $request['payment']['escrow']['expirationDate'] ?? null,
-            'escrow_finish_date' => $request['payment']['escrow']['finishDate'] ?? null,
-            'escrow_finish_reason' => $request['payment']['escrow']['finishReason'] ?? null,
-            'refund_date_created' => $request['payment']['refunds']['dateCreated'] ?? null,
-            'refund_status' => $request['payment']['refunds']['status'] ?? null,
-            'refund_value' => $request['payment']['refunds']['value'] ?? null,
-            'refund_end_to_end_identifier' => $request['payment']['refunds']['endToEndIdentifier'] ?? null,
-            'refund_description' => $request['payment']['refunds']['description'] ?? null,
-            'refund_effective_date' => $request['payment']['refunds']['effectiveDate'] ?? null,
-            'refund_transaction_receipt_url' => $request['payment']['refunds']['transactionReceiptUrl'] ?? null,
-            'user_id' => $userId,
-            'pix_qr_code_id' => $request['payment']['pixQrCodeId'] ?? null,
-        ]);
-
-        $result = null;
-
-        if ($webhookDataDTO->external_reference === 'dalle_manage') {
-            $result = $this->manageRepository->update($webhookDataDTO->payment_id, $webhookDataDTO->toArray());
+        if ($dto->external_reference !== 'dalle_manage') {
+            return null;
         }
 
-        if ($result) {
-            $project = $this->urlProjectRepository->findByIdentifier($projectName);
-            dispatch(new SendPaymentDataAsaasJob($request->all(), $project->base_url));
+        $updated = $this->manageRepository->update($dto->payment_id, $dto->toArray());
+
+        if (! $updated) {
+            return null;
+        }
+
+        $projectName = $this->getProjectName($request['payment']['externalReference']);
+        $project = $this->urlProjectRepository->findByIdentifier($projectName);
+
+        if ($project) {
+            SendPaymentDataAsaasJob::dispatch($request, $project->base_url);
 
             return true;
         }
+
+        return null;
     }
 
-    private function checkPaymentPix($request)
+    private function handlePixPayment(array $request)
     {
-        if ($this->paymentInfoRepository->findById($request['payment']['pixQrCodeId'])) {
-            $parts = explode('|', $request['payment']['externalReference']);
-            $projectName = $parts[0];
-            $project = $this->urlProjectRepository->findByIdentifier($projectName);
+        $pixId = $request['payment']['pixQrCodeId'];
 
-            if ($project) {
-                $this->store($request);
-                $this->paymentInfoRepository->deleteByPaymentId($request['payment']['pixQrCodeId']);
-                dispatch(new SendPaymentDataAsaasJob($request->all(), $project->base_url));
-
-                return true;
-            }
+        if (! $this->paymentInfoRepository->findByPaymentID($pixId)) {
+            return null;
         }
+
+        $projectName = $this->getProjectName($request['payment']['externalReference']);
+        $project = $this->urlProjectRepository->findByIdentifier($projectName);
+
+        if (! $project) {
+            return null;
+        }
+
+        $this->store($request);
+
+        $this->paymentInfoRepository->deleteByPaymentId($pixId);
+
+        SendPaymentDataAsaasJob::dispatch($request, $project->base_url);
+
+        return true;
+    }
+
+    private function getProjectName(string $externalReference): string
+    {
+        return explode('|', $externalReference)[0];
     }
 }

@@ -3,30 +3,12 @@
 namespace App\Modules\Asaas\Repositories;
 
 use App\Modules\Asaas\Models\AsaasDalleManage;
+use App\Repositories\Base\BaseRepository;
 
-class AsaasDalleManageRepository
+class AsaasDalleManageRepository extends BaseRepository
 {
-    public function __construct(protected AsaasDalleManage $model) {}
-
-    public function findById($id)
+    public function __construct(AsaasDalleManage $model)
     {
-        return $this->model->where('payment_id', $id)->first();
-    }
-
-    public function create($data)
-    {
-        return $this->model->create($data);
-    }
-
-    public function update($id, array $data)
-    {
-        $webhookData = $this->findById($id);
-        if ($webhookData) {
-            $webhookData->update($data);
-
-            return $webhookData;
-        }
-
-        return null;
+        parent::__construct($model);
     }
 }

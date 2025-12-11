@@ -21,8 +21,6 @@ class AsaasController
             if ($status) {
                 DB::commit();
 
-                \Log::info('Webhook recebido do Asaas:', $request->all());
-
                 return response()->json([200]);
             }
         } catch (\Exception $e) {

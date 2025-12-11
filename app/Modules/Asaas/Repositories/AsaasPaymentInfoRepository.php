@@ -3,36 +3,13 @@
 namespace App\Modules\Asaas\Repositories;
 
 use App\Modules\Asaas\Models\AsaasPaymentInfo;
+use App\Repositories\Base\BaseRepository;
 
-class AsaasPaymentInfoRepository
+class AsaasPaymentInfoRepository extends BaseRepository
 {
-    public function __construct(protected AsaasPaymentInfo $model) {}
-
-    public function findById($id)
+    public function __construct(AsaasPaymentInfo $model)
     {
-        return $this->model->where('payment_id', $id)->first();
-    }
-
-    public function findByUserId($id)
-    {
-        return $this->model->where('user_id', $id)->first();
-    }
-
-    public function create($data)
-    {
-        return $this->model->create($data);
-    }
-
-    public function update($id, array $data)
-    {
-        $paymentInfo = $this->findByUserId($id);
-        if ($paymentInfo) {
-            $paymentInfo->update($data);
-
-            return $paymentInfo;
-        }
-
-        return null;
+        parent::__construct($model);
     }
 
     public function deleteByPaymentId($id)

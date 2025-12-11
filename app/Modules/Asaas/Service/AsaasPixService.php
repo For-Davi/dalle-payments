@@ -10,81 +10,93 @@ use App\Utils\ErrorAsaasData;
 
 class AsaasPixService
 {
-    public function __construct(protected AsaasHttpClient $http, protected AsaasPaymentInfoRepository $paymentInfoRepository)
-    {
+    private string $addressKey;
+
+    public function __construct(
+        protected AsaasHttpClient $http,
+        protected AsaasPaymentInfoRepository $paymentInfoRepository
+    ) {
         $this->addressKey = config('asaas.address_key');
-        $this->http = $http;
     }
 
-    public function create($request)
+    public function create(object $request): array
     {
+        $externalReference = sprintf(
+            '%s|user_%s|subscription_%s|month_qnty_%s',
+            $request->identifier,
+            $request->userID,
+            $request->subscriptionID,
+            $request->monthQuantity
+        );
+
         $pixDTO = AsaasCreatePixDTO::fromRequest([
             'format' => 'ALL',
             'addressKey' => $this->addressKey,
-            'value' => $request->value,
-            'externalReference' => "{$request->identifier}|user_{$request->userID}|subscription_{$request->subscriptionID}|month_qnty_{$request->monthQuantity}",
+            'value' => (float) $request->value,
+            'externalReference' => $externalReference,
         ]);
 
         $response = $this->http->post('/pix/qrCodes/static', $pixDTO->toArray());
 
         ErrorAsaasData::hasError($response, 'Erro ao criar PIX');
 
-        if ($this->existsPixTransaction($request)) {
-            $this->updateTransaction($response);
+        $paymentData = $response;
+
+        if ($this->existsPixTransaction($request->userID)) {
+            $this->updateTransaction($paymentData);
         } else {
-            $this->saveTransaction($response);
+            $this->saveTransaction($paymentData);
         }
 
         return $response;
     }
 
-    private function existsPixTransaction($request)
+    private function existsPixTransaction(int $userID): bool
     {
-        return $this->paymentInfoRepository->findByUserId($request->userID);
+        return ! is_null($this->paymentInfoRepository->findByUserId($userID));
     }
 
-    private function updateTransaction($paymentData)
+    private function parseExternalReference(string $externalReference): array
     {
-        $parts = explode('|', $paymentData['externalReference']);
-        $projectName = $parts[0];
-        $userPart = $parts[1];
-        $subscriptionPart = $parts[2];
-        $monthQuantityPart = $parts[3];
+        $pattern = '/(.*?)\|user_(\d+)\|subscription_(\d+)\|month_qnty_(\d+)/';
 
-        $userID = (int) str_replace('user_', '', $userPart);
-        $subscriptionID = (int) str_replace('subscription_', '', $subscriptionPart);
-        $monthQuantity = (int) str_replace('month_qnty_', '', $monthQuantityPart);
+        if (preg_match($pattern, $externalReference, $matches)) {
 
-        $paymentInfoDTO = AsaasCreateOrUpdatePaymentInfoDTO::fromRequest([
+            return [
+                'projectName' => $matches[1],
+                'userID' => (int) $matches[2],
+                'subscriptionID' => (int) $matches[3],
+                'monthQuantity' => (int) $matches[4],
+            ];
+        }
+
+        throw new \InvalidArgumentException("Formato de externalReference inválido: $externalReference");
+    }
+
+    private function createPaymentInfoDTO(array $paymentData): AsaasCreateOrUpdatePaymentInfoDTO
+    {
+        $parsedData = $this->parseExternalReference($paymentData['externalReference']);
+
+        return AsaasCreateOrUpdatePaymentInfoDTO::fromRequest([
             'paymentID' => $paymentData['id'],
-            'userID' => $userID,
-            'subscriptionID' => $subscriptionID,
-            'monthQuantity' => $monthQuantity,
-            'identifier' => $projectName,
+            'userID' => $parsedData['userID'],
+            'subscriptionID' => $parsedData['subscriptionID'],
+            'monthQuantity' => $parsedData['monthQuantity'],
+            'identifier' => $parsedData['projectName'],
         ]);
+    }
+
+    private function updateTransaction(array $paymentData): mixed
+    {
+        $paymentInfoDTO = $this->createPaymentInfoDTO($paymentData);
+        $userID = $paymentInfoDTO->user_id;
 
         return $this->paymentInfoRepository->update($userID, $paymentInfoDTO->toArray());
     }
 
-    private function saveTransaction($paymentData)
+    private function saveTransaction(array $paymentData): mixed
     {
-        $parts = explode('|', $paymentData['externalReference']);
-        $projectName = $parts[0];
-        $userPart = $parts[1];
-        $subscriptionPart = $parts[2];
-        $monthQuantityPart = $parts[3];
-
-        $userID = (int) str_replace('user_', '', $userPart);
-        $subscriptionID = (int) str_replace('subscription_', '', $subscriptionPart);
-        $monthQuantity = (int) str_replace('month_qnty_', '', $monthQuantityPart);
-
-        $paymentInfoDTO = AsaasCreateOrUpdatePaymentInfoDTO::fromRequest([
-            'paymentID' => $paymentData['id'],
-            'userID' => $userID,
-            'subscriptionID' => $subscriptionID,
-            'monthQuantity' => $monthQuantity,
-            'identifier' => $projectName,
-        ]);
+        $paymentInfoDTO = $this->createPaymentInfoDTO($paymentData);
 
         return $this->paymentInfoRepository->create($paymentInfoDTO->toArray());
     }
