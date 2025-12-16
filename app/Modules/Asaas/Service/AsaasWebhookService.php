@@ -18,7 +18,7 @@ class AsaasWebhookService
         protected UrlProjectRepository $urlProjectRepository,
     ) {}
 
-    public function checkWebhook(array $request)
+    public function checkWebhook($request)
     {
         $billing = $request['payment']['billingType'];
         $event = $request['event'];
@@ -34,7 +34,7 @@ class AsaasWebhookService
         return null;
     }
 
-    private function handleCreditCard(array $request)
+    private function handleCreditCard($request)
     {
         $event = $request['event'];
 
@@ -49,7 +49,7 @@ class AsaasWebhookService
         return null;
     }
 
-    private function store(array $request)
+    private function store($request)
     {
         $dto = AsaasCreateOrUpdateWebhookDataDTO::fromRequest($request);
 
@@ -60,7 +60,7 @@ class AsaasWebhookService
         return null;
     }
 
-    private function update(array $request)
+    private function update($request)
     {
         $dto = AsaasCreateOrUpdateWebhookDataDTO::fromRequest($request);
 
@@ -78,7 +78,7 @@ class AsaasWebhookService
         $project = $this->urlProjectRepository->findByIdentifier($projectName);
 
         if ($project) {
-            SendPaymentDataAsaasJob::dispatch($request, $project->base_url);
+            SendPaymentDataAsaasJob::dispatch($request->all(), $project->base_url);
 
             return true;
         }
@@ -86,7 +86,7 @@ class AsaasWebhookService
         return null;
     }
 
-    private function handlePixPayment(array $request)
+    private function handlePixPayment($request)
     {
         $pixId = $request['payment']['pixQrCodeId'];
 
@@ -105,7 +105,7 @@ class AsaasWebhookService
 
         $this->paymentInfoRepository->deleteByPaymentId($pixId);
 
-        SendPaymentDataAsaasJob::dispatch($request, $project->base_url);
+        SendPaymentDataAsaasJob::dispatch($request->all(), $project->base_url);
 
         return true;
     }

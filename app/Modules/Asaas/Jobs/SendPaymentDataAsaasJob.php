@@ -13,13 +13,13 @@ class SendPaymentDataAsaasJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected array $data;
+    protected $data;
 
     protected string $token;
 
     protected string $baseUrl;
 
-    public function __construct(array $data, string $baseUrl)
+    public function __construct($data, string $baseUrl)
     {
         $this->data = $data;
         $this->baseUrl = $baseUrl;

@@ -18,7 +18,7 @@ class AsaasCreateChargeDTO
         public readonly ?float $installmentValue,
     ) {}
 
-    public static function fromData(array $data, string $customerID): self
+    public static function fromData($data, string $customerID): self
     {
         return new self(
             customer: $customerID,
@@ -33,7 +33,7 @@ class AsaasCreateChargeDTO
         );
     }
 
-    private static function makeExternalReference(array $data): string
+    private static function makeExternalReference($data): string
     {
         return sprintf(
             '%s|user_%s|subscription_%s|month_qnty_%s',

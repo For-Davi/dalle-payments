@@ -14,7 +14,7 @@ class AsaasCreditCardService
         protected AsaasHttpClient $http,
     ) {}
 
-    public function create(array $request)
+    public function create($request)
     {
         $cpfCnpj = $request['creditCardHolderInfo']['cpfCnpj'];
 
@@ -30,7 +30,7 @@ class AsaasCreditCardService
         return $this->isItPaid($payment['id']);
     }
 
-    private function createNewClient(array $request)
+    private function createNewClient($request)
     {
         $info = $request['creditCardHolderInfo'];
 
@@ -42,7 +42,7 @@ class AsaasCreditCardService
         ]);
     }
 
-    private function createCreditCardCharge(string $customerID, array $data)
+    private function createCreditCardCharge(string $customerID, $data)
     {
         $chargeDTO = AsaasCreateChargeDTO::fromData($data, $customerID);
 
@@ -52,7 +52,7 @@ class AsaasCreditCardService
         return $response;
     }
 
-    private function payCreditCardCharge(string $chargeID, array $data)
+    private function payCreditCardCharge(string $chargeID, $data)
     {
         $paymentDTO = AsaasCreateCreditCardDTO::fromRequest($data);
 

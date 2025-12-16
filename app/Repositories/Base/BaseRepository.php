@@ -20,7 +20,7 @@ abstract class BaseRepository
         return $this->model->create($data);
     }
 
-    public function update(int $id, array $data, array $relations = []): ?Model
+    public function update($id, array $data, array $relations = []): ?Model
     {
         if ($this->model instanceof AsaasDalleManage) {
             $record = $this->findByPaymentID($id, $relations);
