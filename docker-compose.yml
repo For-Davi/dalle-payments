@@ -5,7 +5,8 @@ services:
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.4/app'
+        image: 'dalle_payments/app'
+        container_name: dalle_payments_app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -20,38 +21,40 @@ services:
         volumes:
             - '.:/var/www/html'
         networks:
-            - sail
+            - manage-network  # 👈 mesma rede do dalle-manage
         depends_on:
             - mysql
+
     ngrok:
         image: ngrok/ngrok:latest
+        container_name: dalle_payments_ngrok
         restart: unless-stopped
-        networks:
-            - sail
         ports:
             - '4040:4040'
         environment:
             NGROK_AUTHTOKEN: '${NGROK_AUTHTOKEN}'
-        command:
-            http --domain=${NGROK_DOMAIN} payments:80
+            NGROK_DOMAIN: '${NGROK_DOMAIN}'
+        command: ["http", "dalle_payments_app:80", "--domain=${NGROK_DOMAIN}"]
+        networks:
+            - manage-network
         depends_on:
             - payments
+
     mysql:
         image: 'mysql/mysql-server:8.0'
+        container_name: dalle_payments_mysql
         ports:
             - '${FORWARD_DB_PORT:-3308}:3306'
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-            # MYSQL_ROOT_HOST: '%'
             MYSQL_DATABASE: '${DB_DATABASE}'
             MYSQL_USER: '${DB_USERNAME}'
             MYSQL_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 1
-            # MYSQL_EXTRA_OPTIONS: '${MYSQL_EXTRA_OPTIONS}'
         volumes:
-            - 'sail-mysql:/var/lib/mysql'
+            - 'dalle_payments_mysql:/var/lib/mysql'
         networks:
-            - sail
+            - manage-network
         healthcheck:
             test:
                 - CMD
@@ -60,9 +63,12 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+
 networks:
-    sail:
+    manage-network:
         driver: bridge
+        external: true
+
 volumes:
-    sail-mysql:
+    dalle_payments_mysql:
         driver: local
