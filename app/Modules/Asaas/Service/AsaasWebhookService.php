@@ -53,7 +53,7 @@ class AsaasWebhookService
     {
         $dto = AsaasCreateOrUpdateWebhookDataDTO::fromRequest($request);
 
-        if ($dto->external_reference === 'dalle_manage') {
+        if ($dto->project_name === 'dalle_manage') {
             return $this->manageRepository->create($dto->toArray());
         }
 
@@ -64,7 +64,7 @@ class AsaasWebhookService
     {
         $dto = AsaasCreateOrUpdateWebhookDataDTO::fromRequest($request);
 
-        if ($dto->external_reference !== 'dalle_manage') {
+        if ($dto->project_name !== 'dalle_manage') {
             return null;
         }
 
@@ -74,7 +74,7 @@ class AsaasWebhookService
             return null;
         }
 
-        $projectName = $this->getProjectName($request['payment']['externalReference']);
+        $projectName = $this->getProjectName($dto->project_name);
         $project = $this->urlProjectRepository->findByIdentifier($projectName);
 
         if ($project) {

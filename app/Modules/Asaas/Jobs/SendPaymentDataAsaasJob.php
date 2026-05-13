@@ -15,23 +15,20 @@ class SendPaymentDataAsaasJob implements ShouldQueue
 
     protected $data;
 
-    protected string $token;
-
     protected string $baseUrl;
 
     public function __construct($data, string $baseUrl)
     {
         $this->data = $data;
         $this->baseUrl = $baseUrl;
-        $this->token = config('app.access_token');
     }
 
     public function handle(): void
     {
-        $response = Http::withHeaders([
-            'accept' => 'application/json',
+        Http::withHeaders([
+            'accept'       => 'application/json',
             'Content-Type' => 'application/json',
-            'access-token' => $this->token,
+            'access-token' => config('app.access_token'),
         ])->post("{$this->baseUrl}/send-webhook", $this->data);
     }
 }

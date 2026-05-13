@@ -36,7 +36,7 @@ class SimulateAsaasPixWebhook extends Command
                 'interestValue' => null,
                 'nossoNumero' => null,
                 'description' => 'Pedido 056984',
-                'externalReference' => 'dalle_manage|user_2|subscription_2|month_qnty_1',
+                'externalReference' => 'dalle_manage|user_11|subscription_2|month_qnty_1',
                 'billingType' => 'PIX',
                 'pixQrCodeId' => $pixQrCodeId,
                 'status' => 'RECEIVED',
@@ -84,7 +84,7 @@ class SimulateAsaasPixWebhook extends Command
         $url = "https://{$ngrokDomain}/api/asaas-webhook";
 
         $response = Http::withHeaders([
-            'asaas-access-token' => 'asdkjh1989c8jw98eryj9hfdsfh293hh2h234hh6h5j4',
+            'asaas-access-token' => 'whsec_jAsJ7bwXHhccx2dGiitVt1wrI9NG9im79P9l2oFO6pQ',
             'Content-Type' => 'application/json',
         ])->post($url, $payload);
 

@@ -63,6 +63,7 @@ class AsaasCreateOrUpdateWebhookDataDTO
         public readonly ?string $refund_transaction_receipt_url,
         public readonly int $user_id,
         public readonly ?string $pix_qr_code_id,
+        public readonly string $project_name,
     ) {}
 
     public static function fromRequest($data): self
@@ -97,7 +98,7 @@ class AsaasCreateOrUpdateWebhookDataDTO
             installment_number: $data['payment']['installmentNumber'] ?? null,
             invoice_url: $data['payment']['invoiceUrl'],
             invoice_number: $data['payment']['invoiceNumber'] ?? null,
-            external_reference: $projectName,
+            external_reference: $data['payment']['externalReference'],
             deleted: $data['payment']['deleted'],
             anticipated: $data['payment']['anticipated'],
             anticipable: $data['payment']['anticipable'],
@@ -130,7 +131,8 @@ class AsaasCreateOrUpdateWebhookDataDTO
             refund_effective_date: $data['payment']['refunds']['effectiveDate'] ?? null,
             refund_transaction_receipt_url: $data['payment']['refunds']['transactionReceiptUrl'] ?? null,
             user_id : (int) $userId,
-            pix_qr_code_id: $data['payment']['pixQrCodeId'] ?? null
+            pix_qr_code_id: $data['payment']['pixQrCodeId'] ?? null,
+            project_name: $projectName,
         );
     }
 
@@ -195,6 +197,7 @@ class AsaasCreateOrUpdateWebhookDataDTO
             'refund_transaction_receipt_url' => $this->refund_transaction_receipt_url,
             'user_id' => $this->user_id,
             'pix_qr_code_id' => $this->pix_qr_code_id,
+            'project_name' => $this->project_name
         ];
     }
 }

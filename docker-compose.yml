@@ -34,7 +34,7 @@ services:
         environment:
             NGROK_AUTHTOKEN: '${NGROK_AUTHTOKEN}'
             NGROK_DOMAIN: '${NGROK_DOMAIN}'
-        command: ["http", "dalle_payments_app:80", "--domain=${NGROK_DOMAIN}"]
+        command: ["http", "dalle_payments_app:80", "--url=${NGROK_DOMAIN}"]
         networks:
             - manage-network
         depends_on:
